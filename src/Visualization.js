@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+
 import * as d3 from "d3";
 
 function Visualization({ data }) {
@@ -16,8 +17,11 @@ function Visualization({ data }) {
       .select(chartRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("height", height + margin.top + margin.bottom);
+
+    const chartContainer = svg
       .append("g")
+      .attr("class", "chart-container")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const topicCounts = {};
@@ -42,7 +46,7 @@ function Visualization({ data }) {
       .nice()
       .range([height, 0]);
 
-    svg
+    chartContainer
       .selectAll(".bar")
       .data(Object.entries(topicCounts))
       .enter()
@@ -53,13 +57,18 @@ function Visualization({ data }) {
       .attr("width", x.bandwidth())
       .attr("height", (d) => height - y(d[1]));
 
-    svg
+    chartContainer
       .append("g")
       .attr("class", "x-axis")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-40)");
 
-    svg.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
+    chartContainer.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
   }, [data]);
 
   return (
